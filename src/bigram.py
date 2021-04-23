@@ -4,6 +4,7 @@ import os
 from time import time
 from nltk.tokenize import word_tokenize
 from nltk import PorterStemmer
+import unigram
 
 # helper function to parse text from bigram dataset and update model accordingly
 def process_row(row: tuple, bigram_model: dict, porterStemmer) -> None:
@@ -19,7 +20,8 @@ def process_row(row: tuple, bigram_model: dict, porterStemmer) -> None:
     for bigram in bigrams: 
         arr = bigram_model.get(bigram, [0, 0])
 
-        if sentiment == -1: 
+        # modify the following row 0 or -1 based on the corpus <-- before corpus are standardized! 
+        if sentiment == 0: 
             arr[1] += 1
         else: 
             arr[0] += 1
@@ -28,7 +30,38 @@ def process_row(row: tuple, bigram_model: dict, porterStemmer) -> None:
         
     return
 
-def analyze_bigram(sentence: str, bigram_model: dict, porterStemmer) -> tuple: 
+def unigram_backoff(unigram_model: unigram.Lexicon, bigram: list) -> list: 
+    ret = []
+    # print(bigram)
+    
+    for token in bigram: 
+        try: 
+            word_obj = unigram_model._get(token)
+            _word, _pos, _sentiment = word_obj.word, word_obj.pos, word_obj.sentiment
+            if _sentiment == 'negative': 
+                polarity = -1
+            elif _sentiment == 'positive': 
+                polarity = 1
+            else: 
+                polarity = 0
+        except AttributeError:
+            polarity = 0
+        
+        ret.append(polarity)
+    # print(ret)
+    _sum = sum(ret)
+    if _sum == 0:
+        ret = [1, 1]
+    elif _sum > 0: 
+        ret = [1, 0]
+    else: 
+        ret = [0, 1]
+
+    # print("unigram backoff result: {0}. ".format(ret))
+    return ret
+
+def analyze_bigram(sentence: str, bigram_model: dict, unigram_model: unigram.Lexicon, STOP_WORDS: list, porterStemmer) -> tuple: 
+    # print(sentence)
     tokens = word_tokenize(sentence)
     tokens = [token.lower() for token in tokens]
     # tokens = [porterStemmer.stem(token) for token in tokens]
@@ -36,17 +69,25 @@ def analyze_bigram(sentence: str, bigram_model: dict, porterStemmer) -> tuple:
 
     pos = 0
     neg = 0
+    stop_words = 0
+    # loop through each bigram of the current sentence
     for bigram in bigrams: 
-        arr = bigram_model.get(bigram, [0, 0])
+        bigram_tokenized = word_tokenize(bigram)
+        # remove stop words presence
+        if any( (token in STOP_WORDS for token in bigram_tokenized) ): 
+            stop_words += 1
+            continue
+
+        # retrieve pos and neg occurrence from bigram model
+        arr = bigram_model.get(bigram, [-1, -1])
+        # if not found, backoff to unigram model
+        if arr == [-1, -1]: 
+            arr = unigram_backoff(unigram_model, bigram_tokenized)
 
         _pos, _neg = arr[0], arr[1]
-        if _pos + _neg < 5: 
-            _pos = 0
-            _neg = 0
+        pos += _pos / (_pos + _neg)
+        neg += _neg / (_pos + _neg)
 
-        pos += _pos
-        neg += _neg
-    
     count_sum = pos + neg
     try: 
         # (positive, negative)
@@ -55,19 +96,23 @@ def analyze_bigram(sentence: str, bigram_model: dict, porterStemmer) -> tuple:
         weight = (0, 0)
 
     # print("This comment has weighed sentiment as: \n\tpositive: {0}, negative: {1}"
-            .format(weight[0], weight[1]))
+    #        .format(weight[0], weight[1]))
 
     return tuple(weight)
 
 # process the developement dataset
-def process_dev(filename: str, porterStemmer) -> dict: 
+def process_dev(filenames: list, porterStemmer) -> dict: 
     # read from development dataset
-    df = pd.read_csv(filename, header=0)
+    df = pd.DataFrame()
+    for filename in filenames: 
+        temp = pd.read_csv(filename, header=0)
+        df = df.append(temp, ignore_index=True)
+    
     # print(df[df['SentimentText'].isnull()], df.nunique())
     # item_counts = df["Sentiment"].value_counts(normalize=True)
     # print(item_counts)
+    # print(df.describe())
 
-    
     '''
     designed structure: {
         "hello world": [positive_occurrence, negative_occurrence], 
@@ -83,6 +128,7 @@ def process_dev(filename: str, porterStemmer) -> dict:
   
     return bigram_model
 
+'''
 def main() -> None: 
 
     dev_set = '../data/bigram/bigram_dev.csv'
@@ -113,9 +159,10 @@ def main() -> None:
         ]
 
     for comment in comments: 
-        analyze_bigram(comment, bigram_model, porterStemmer)
+        analyze_bigram(comment, bigram_model, unigram_model, porterStemmer)
 
     return
     
 if __name__ == '__main__': 
     main()
+''' 
