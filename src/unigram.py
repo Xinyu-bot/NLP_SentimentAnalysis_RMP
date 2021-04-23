@@ -108,10 +108,11 @@ def sentiment_analysis(comment_sentiment: list) -> tuple:
         weight = (0, 0)
 
     # print("This comment has weighed sentiment as: \n\tpositive: {0}, negative: {1}"
-            .format(weight[0], weight[1]))
+    #        .format(weight[0], weight[1]))
 
     return tuple(weight)
 
+''' 
 if __name__ == '__main__':
     comments = [
         "Adam Meyers is an idiosyncratic individual. Has very dense lectures, but I find them interesting. Obviously not everyone will. Helps to have some prior knowledge of programming. Very knowledgeable and approachable (important for big lectures). Overall great guy with stellar taste in music and fashion.", 
@@ -141,3 +142,4 @@ if __name__ == '__main__':
     for comment in comments: 
         comment_sentiment = comment_parsing(comment, lexicon)
         sentiment_analysis(comment_sentiment)
+''' 
