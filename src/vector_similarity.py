@@ -209,19 +209,20 @@ def cosine_similarity_processing(commentDict: dict, corpusDict: dict) -> dict:
             cosineSimilarity = cosine_similarity(commentFeatureVector, newFeatureVector)
             # append two keys and cosineSimilarity to comment_output list
             if cosineSimilarity > 0:
-                # for some reasons there are undesired `0` char on the left of keys under 100, 
-                # e.g. 1 would become 001, 10 would become 010... so we left strip the zeros
                 comment_output.append((corpusKey, cosineSimilarity))
 
         # sort the comment_output list after one commentKey is done
         comment_output.sort(key = lambda x: x[1], reverse = True)
 
-        # only extract the top 50 most related reviews
-        most_related_50 = []
-        for i in range(50):
-            most_related_50.append(comment_output[i])
+        # only extract the top 20 most related reviews
+        most_related_20 = []
+        for i in range(20):
+            try: 
+                most_related_20.append(comment_output[i])
+            except IndexError: 
+                continue
         # add to the output dict
-        output[commentKey] = most_related_50
+        output[commentKey] = most_related_20
     
     return output
 
@@ -261,12 +262,10 @@ def analyze_vector_similarity(df: pd.DataFrame, comments: list) -> list:
         except ZeroDivisionError: 
             weight = (0, 0)
 
-        # print("This comment has weighed sentiment as: \n\tpositive: {0}, negative: {1}"
-        #         .format(weight[0], weight[1]))
         system_output.append(weight)
     b = time()
-    
-    print("Time cost for generating output: {0}.".format(b - a))
+    print("Time cost for generating output: {0} sec".format(b - a))
+
     return system_output
     
 
