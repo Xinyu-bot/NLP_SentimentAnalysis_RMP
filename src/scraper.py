@@ -2,14 +2,14 @@ import requests
 from bs4 import BeautifulSoup
 import pandas as pd
 
-def output_csv(prof_list):
+def output_csv(prof_list, output_fn):
     # Output result as a csv file with 4 columns: text, quality, difficulty, prof_name
     df = pd.DataFrame()
     for prof in prof_list:
         comments = prof['comments']
         df_prof = pd.DataFrame([[c[2], c[0], c[1], prof['name']] for c in comments], columns=['text', 'quality', 'difficulty', 'prof_name'])
         df = pd.concat([df, df_prof], ignore_index=True)
-    df.to_csv('rmp_data.csv')
+    df.to_csv(output_fn)
 
 def main():
     prof_list = []  
@@ -20,7 +20,7 @@ def main():
 
     base_url = 'https://www.ratemyprofessors.com/ShowRatings.jsp?tid='
     # A list of teacher id whose comments we will fetch
-    tid = list(range(1, 2499999, 10000))
+    tid = list(range(9, 2499999, 4000))
     # [1302, 2224004, 1576103, 1051004, 2105994, 2291871, 1482580, 2454762, 1032165, 2291493, 1134872, 1889463, 919428, 2190976, 534980]
 
     for t in tid:
@@ -69,7 +69,7 @@ def main():
     print("Total number of professors: " + str(len(prof_list)))
     print("Total number of comments: " + str(sum([len(prof['comments']) for prof in prof_list])))
 
-    output_csv(prof_list)
+    output_csv(prof_list, '../data/rmp_data5.csv')
     return prof_list
 
 if __name__ == '__main__':
