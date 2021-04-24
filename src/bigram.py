@@ -37,10 +37,11 @@ def unigram_backoff(unigram_model: unigram_lexicon_based.Lexicon, bigram: list) 
     for token in bigram: 
         try: 
             word_obj = unigram_model._get(token)
-            _word, _pos, _sentiment = word_obj.word, word_obj.pos, word_obj.sentiment
-            if _sentiment == 'negative': 
+            _word, _sentiment = word_obj.word, word_obj.sentiment
+            _sentiment = int(_sentiment)
+            if _sentiment == 0: 
                 polarity = -1
-            elif _sentiment == 'positive': 
+            elif _sentiment == 1: 
                 polarity = 1
             else: 
                 polarity = 0

@@ -35,8 +35,8 @@ def generate_lexicon(filename: str) -> Lexicon:
     # read in the file
     with open(filename, 'r') as instream: 
         for line in instream: 
-            line = line.strip(os.linesep).split(' ')
-            word, sentiment = line[2].split('=')[1], line[5].split('=')[1]
+            line = line.strip(os.linesep).split(',')
+            word, sentiment = line[0], line[1]
             setattr(unigram, word, Token(word, sentiment))
 
     return unigram
@@ -89,11 +89,12 @@ def sentiment_analysis(comment_sentiment: list) -> tuple:
     positive_count = 0
     negative_count = 0
     for element in comment_sentiment: 
+        element = int(element)
         # if element > 0: 
-        if element == 'positive': 
+        if element == 1: 
             positive_count += 1
         # elif element < 0: 
-        elif element == 'negative': 
+        elif element == 0: 
             negative_count += 1
         else: 
             continue
