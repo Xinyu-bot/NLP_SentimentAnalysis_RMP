@@ -6,7 +6,7 @@ a = Lexicon()
 word = 'hello'
 sentiment = 'negative'
 setattr(a, word, Token(word, 'verb', sentiment))
-print(a.hello.pos) --> verb
+print(a.hello.word) --> 'hello'
 Lexicon: 
 self.pervert -> self.pervert.word
 self.phobic
@@ -21,10 +21,9 @@ class Lexicon:
         return object.__getattribute__(self, token)
 
 class Token: 
-    __slots__ = ('word', 'pos', 'sentiment')
-    def __init__(self, word, pos, sentiment):
+    __slots__ = ('word', 'sentiment')
+    def __init__(self, word, sentiment):
         self.word = word
-        self.pos = pos
         self.sentiment = sentiment
 
 
@@ -37,14 +36,13 @@ def generate_lexicon(filename: str) -> Lexicon:
     with open(filename, 'r') as instream: 
         for line in instream: 
             line = line.strip(os.linesep).split(' ')
-            word, pos, sentiment = line[2].split('=')[1], line[3].split('=')[1], line[5].split('=')[1]
-            setattr(unigram, word, Token(word, pos, sentiment))
+            word, sentiment = line[2].split('=')[1], line[5].split('=')[1]
+            setattr(unigram, word, Token(word, sentiment))
 
     return unigram
 
 
 def comment_parsing(comment: str, lexicon: Lexicon) -> dict: 
-
     comment_sentiment = []
     sentences = sent_tokenize(comment)
     # loop through each sentence
@@ -67,7 +65,7 @@ def comment_parsing(comment: str, lexicon: Lexicon) -> dict:
                 try: 
                     word_obj = lexicon._get(token)
                     #print(word_obj.word)
-                    _word, _pos, _sentiment = word_obj.word, word_obj.pos, word_obj.sentiment
+                    _word, _sentiment = word_obj.word, word_obj.sentiment
                     
                     if flag: 
                         if _sentiment == 'positive':
@@ -83,6 +81,7 @@ def comment_parsing(comment: str, lexicon: Lexicon) -> dict:
         #print(sentence_sentiment)
         comment_sentiment += sentence_sentiment
     
+    # print(comment_sentiment, '\n')
     return comment_sentiment
 
 def sentiment_analysis(comment_sentiment: list) -> tuple:
@@ -110,6 +109,7 @@ def sentiment_analysis(comment_sentiment: list) -> tuple:
     # print("This comment has weighed sentiment as: \n\tpositive: {0}, negative: {1}"
     #        .format(weight[0], weight[1]))
 
+    # print(weight, '\n')
     return tuple(weight)
 
 ''' 

@@ -266,7 +266,7 @@ def analyze_vector_similarity(df: pd.DataFrame, comments: list) -> list:
         system_output.append(weight)
     b = time()
     
-    print("Time cost for generating output: {0}.".format(b - a))
+    print("Time cost for generating output: {0} sec".format(b - a))
     return system_output
     
 

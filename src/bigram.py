@@ -4,7 +4,7 @@ import os
 from time import time
 from nltk.tokenize import word_tokenize
 from nltk import PorterStemmer
-import unigram
+import unigram_lexicon_based
 
 # helper function to parse text from bigram dataset and update model accordingly
 def process_row(row: tuple, bigram_model: dict, porterStemmer) -> None:
@@ -13,7 +13,7 @@ def process_row(row: tuple, bigram_model: dict, porterStemmer) -> None:
     # negative_weight = item_counts[-1]
 
     tokens = word_tokenize(text)
-    # tokens = [porterStemmer.stem(token) for token in tokens]
+    tokens = [porterStemmer.stem(token) for token in tokens]
     bigrams = [' '.join([tokens[i], tokens[i + 1]]) for i in range(len(tokens)) if i < len(tokens) - 1]
     # print(bigrams)
 
@@ -30,7 +30,7 @@ def process_row(row: tuple, bigram_model: dict, porterStemmer) -> None:
         
     return
 
-def unigram_backoff(unigram_model: unigram.Lexicon, bigram: list) -> list: 
+def unigram_backoff(unigram_model: unigram_lexicon_based.Lexicon, bigram: list) -> list: 
     ret = []
     # print(bigram)
     
@@ -60,11 +60,11 @@ def unigram_backoff(unigram_model: unigram.Lexicon, bigram: list) -> list:
     # print("unigram backoff result: {0}. ".format(ret))
     return ret
 
-def analyze_bigram(sentence: str, bigram_model: dict, unigram_model: unigram.Lexicon, STOP_WORDS: list, porterStemmer) -> tuple: 
+def analyze_bigram(sentence: str, bigram_model: dict, unigram_model: unigram_lexicon_based.Lexicon, STOP_WORDS: list, porterStemmer) -> tuple: 
     # print(sentence)
     tokens = word_tokenize(sentence)
     tokens = [token.lower() for token in tokens]
-    # tokens = [porterStemmer.stem(token) for token in tokens]
+    tokens = [porterStemmer.stem(token) for token in tokens]
     bigrams = [' '.join([tokens[i], tokens[i + 1]]) for i in range(len(tokens)) if i < len(tokens) - 1]
 
     pos = 0
