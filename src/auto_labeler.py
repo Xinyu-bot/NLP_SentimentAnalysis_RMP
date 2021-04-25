@@ -4,6 +4,7 @@ import pandas as pd
 def main() -> None: 
     '''
     ### DO NOT TOUCH ###
+    # used to shuffled RMP_data and remove 'index' columns
 
     df = pd.read_csv('../data/rmp_data/rmp_data.csv', header=0)
     df.drop(columns='index', inplace=True)
@@ -16,14 +17,14 @@ def main() -> None:
     '''
 
     # modify filename if needed
-    INFILE = '../data/rmp_data/rmp_data_noIndex.csv'
-    OUTFILE = '../data/rmp_data/rmp_data_altesting.csv'
-    LINES_TO_LABEL = 500
+    INFILE = '../data/rmp_data/temp.csv' # please modify the temp.csv locally as wish, instead of changing this variable
+    OUTFILE = '../data/rmp_data/rmp_data_502_1001.csv' # please change this variable directly: if file is created, it will be overrode; if not created, it will be created then
 
     df = pd.read_csv(INFILE, header=0)
     df_out = pd.DataFrame(columns=['sentiment','text','quality','difficulty','prof_name'])
+    print("Total lines in INFILE: {0}".format(len(df.index)))
 
-    counter = 0
+    counter = 1
     # loop through the set
     for row in df.itertuples(index=False):
         row_d = {'sentiment': row[0], 'text': row[1], 'quality': float(row[2]), 'difficulty': float(row[3]), 'prof_name': row[4]}
@@ -32,7 +33,7 @@ def main() -> None:
         elif row_d['quality'] <= 2.0: 
             row_d['sentiment'] = 0
         else: 
-            label = str(input("{0}\n".format(row_d['text'])))
+            label = str(input("=" * 42 + '\n' + "Progress: {0} / {1} = {2}%\n".format(counter, len(df.index), round((counter / len(df.index)), 3) * 100) + "{0}\n".format(row_d['text'])))
             if label != '0' and label != '1': 
                 flag = True
                 while flag: 
@@ -41,11 +42,10 @@ def main() -> None:
                         flag = False
             row_d['sentiment'] = label
 
-        df_out = df_out.append(row_d, ignore_index=True)
         counter += 1
-        if counter == LINES_TO_LABEL: 
-            break
+        df_out = df_out.append(row_d, ignore_index=True)
 
+    # write out the labeled csv file
     df_out.to_csv(OUTFILE, index=False)
     
     return
