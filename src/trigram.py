@@ -198,7 +198,7 @@ def main(regenerate: int, onRMP: int) -> None:
     bigram_dev_set = '../data/IMDB_data/Valid.csv'
     bigram_train_set = '../data/IMDB_data/Train.csv'
     bigram_test_set = '../data/IMDB_data/Test.csv'
-    RMP_test_set = '../data/rmp_data/rmp_data_altesting.csv'
+    RMP_test_set = '../data/rmp_data/rmp_data_labeled.csv'
     TEST_FILE = RMP_test_set if onRMP else bigram_test_set
     porterStemmer = PorterStemmer()
     STOP_WORDS = []
