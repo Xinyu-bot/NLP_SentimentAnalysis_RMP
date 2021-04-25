@@ -198,7 +198,7 @@ def main(regenerate: int, onRMP: int) -> None:
     bigram_dev_set = '../data/IMDB_data/Valid.csv'
     bigram_train_set = '../data/IMDB_data/Train.csv'
     bigram_test_set = '../data/IMDB_data/Test.csv'
-    RMP_test_set = '../data/rmp_data/rmp_data_small.csv'
+    RMP_test_set = '../data/rmp_data/rmp_data_altesting.csv'
     TEST_FILE = RMP_test_set if onRMP else bigram_test_set
     porterStemmer = PorterStemmer()
     STOP_WORDS = []
@@ -248,7 +248,7 @@ def main(regenerate: int, onRMP: int) -> None:
         if not onRMP:
             text, label = row[0], row[1] # for IMDB corpus
         else: 
-            text, label = row[1], row[5] # for RMP corpus
+            text, label = row[1], row[0] # for RMP corpus
         # analyze row based on trigram
         res = analyze_trigram(text, trigram_model, bigram_model, unigram_model, STOP_WORDS, porterStemmer)
         # print("Current line {0}: result {1}, label {2}".format(total, res, label))
