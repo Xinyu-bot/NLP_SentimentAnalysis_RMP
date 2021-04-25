@@ -6,19 +6,19 @@ def main() -> None:
     ### DO NOT TOUCH ###
     # used to shuffled RMP_data and remove 'index' columns
 
-    df = pd.read_csv('../data/rmp_data/rmp_data.csv', header=0)
+    df = pd.read_csv('../data/rmp_data/raw/rmp_data3.csv', header=0)
     df.drop(columns='index', inplace=True)
     df.insert(loc=0, column='sentiment', value='')
     df = df.sample(frac=1).reset_index(drop=True)
     df.dropna(how='any', inplace=True)
     
     print(df.head())
-    df.to_csv('../data/rmp_data/rmp_data_noIndex.csv', index=False)
+    df.to_csv('../data/rmp_data/rmp_data_noIndex3.csv', index=False)
     '''
 
     # modify filename if needed
     INFILE = '../data/rmp_data/temp.csv' # please modify the temp.csv locally as wish, instead of changing this variable
-    OUTFILE = '../data/rmp_data/rmp_data_502_1001.csv' # please change this variable directly: if file is created, it will be overrode; if not created, it will be created then
+    OUTFILE = '../data/rmp_data/rmp_data_2002_5001.csv' # please change this variable directly: if file is created, it will be overrode; if not created, it will be created then
 
     df = pd.read_csv(INFILE, header=0)
     df_out = pd.DataFrame(columns=['sentiment','text','quality','difficulty','prof_name'])
