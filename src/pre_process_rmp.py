@@ -10,8 +10,8 @@ def shuffle() -> None:
     df = df.sample(frac=1).reset_index(drop=True)
     row_count = df['label'].count()
     
-    training_size = row_count * 9 // 10
-    test_size = row_count - training_size
+    training_size = row_count - 5000
+    test_size = 5000
 
     df_train = df.head(training_size)
     df_train.to_csv(train_set, index=False)

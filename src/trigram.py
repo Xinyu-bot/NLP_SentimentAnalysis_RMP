@@ -39,7 +39,7 @@ def process_row(row: tuple, trigram_model: dict, bigram_model: dict, porterStemm
     tokens = word_tokenize(text)
     tokens = [token.lower() for token in tokens]
     # tokens = tokens_cleaner(tokens)
-    tokens = [porterStemmer.stem(token) for token in tokens]
+    # tokens = [porterStemmer.stem(token) for token in tokens]
 
     # loop through tokens    
     index = 0
@@ -135,7 +135,7 @@ def analyze_trigram(sentence: str, trigram_model: dict, bigram_model: dict, unig
     tokens = word_tokenize(sentence)
     tokens = [token.lower() for token in tokens]
     # tokens = tokens_cleaner(tokens)
-    tokens = [porterStemmer.stem(token) for token in tokens]
+    # tokens = [porterStemmer.stem(token) for token in tokens]
 
     # lazy generate trigrams from sentence
     trigrams = [' '.join((tokens[i], tokens[i + 1], tokens[i + 2])) for i in range(len(tokens)) if i < len(tokens) - 2]
