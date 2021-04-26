@@ -264,7 +264,7 @@ def analyze_vector_similarity(df: pd.DataFrame, comments: list) -> list:
 
         system_output.append(weight)
     b = time()
-    print("Time cost for generating output: {0} sec".format(b - a))
+    print("Time cost for generating output: {0} sec".format(round((b - a), 3)))
 
     return system_output
     
@@ -294,11 +294,13 @@ if __name__ == '__main__':
     bigram_dev_set = '../data/IMDB_data/Valid.csv'
     bigram_train_set = '../data/IMDB_data/Train.csv'
     bigram_test_set = '../data/IMDB_data/Test.csv'
+    rmp_train = '../data/rmp_data/processed/rmp_data_train.csv'
+    rmp_test = '../data/rmp_data/processed/rmp_data_test.csv'
 
-    df = pd.read_csv(bigram_dev_set, header=0)
+    df = pd.read_csv(rmp_train, header=0)
 
     comments = []
-    with open(bigram_test_set, 'r') as instream: 
+    with open(rmp_test, 'r') as instream: 
         next(instream)
         for line in instream: 
             line = line.strip(os.linesep).split(',')

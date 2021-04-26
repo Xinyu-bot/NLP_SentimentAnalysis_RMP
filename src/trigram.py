@@ -213,7 +213,7 @@ def main(regenerate: int, onRMP: int) -> None:
     # maybe model algorithmics have been changed, then we need to regenerate model
     if regenerate: 
         c = time()
-        trigram_model, bigram_model = train_model((bigram_dev_set, bigram_train_set, RMP_train_set), porterStemmer)
+        trigram_model, bigram_model = train_model((RMP_train_set, ), porterStemmer)
         d = time()
         print("Time cost for generating models: {0} sec".format(round((d - c), 3)))
 
