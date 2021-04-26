@@ -6,7 +6,6 @@ import pandas as pd
 import numpy as np
 from scraper import main as grab
 import unigram_lexicon_based
-import unigram_corpus_based
 import bigram
 import vector_similarity
 import sys
@@ -81,15 +80,16 @@ def test_vector_similarity() -> None:
     bigram_dev_set = '../data/IMDB_data/Valid.csv'
     bigram_train_set = '../data/IMDB_data/Train.csv'
     bigram_test_set = '../data/IMDB_data/Test.csv'
-    RMP_test_set = '../data/rmp_data/rmp_data_small.csv'
+    rmp_train = '../data/rmp_data/processed/rmp_data_train.csv'
+    rmp_test = '../data/rmp_data/processed/rmp_data_test.csv'
 
-    df = pd.read_csv(bigram_dev_set, header=0)
-    df = df.head(5000)
+    df = pd.read_csv(rmp_train, header=0)
+    # df = df.head(5000)
     
-    df_test = pd.read_csv(RMP_test_set, header=0)
+    df_test = pd.read_csv(rmp_test, header=0)
     # df_test = df_test.head(200)
     comments = df_test['text'].tolist()
-    labels = df_test['sentiment'].tolist()
+    labels = df_test['label'].tolist()
     # print(len(comments), len(labels))
 
     system_output = vector_similarity.analyze_vector_similarity(df, comments) 
