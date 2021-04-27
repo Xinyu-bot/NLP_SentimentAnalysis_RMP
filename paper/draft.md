@@ -50,6 +50,7 @@ __...__
   * same as bigram model above
   * but we back-off to bigram model first, and if still not found, we back-off to unigram model
 * __vector similarity model__
+  * re-use code written for the IR homwork, so 100% originality. No `sklearn` module involved.
   * TF-IDF score for vectorized sentences then compute vector similarity
   * use average sentiment score for top N instances from the corpus
 
@@ -69,7 +70,7 @@ We shuffle our corpus first to add more randomization into the sampling process.
 * __vector similarity__
   * around 80s
 * __Performance Analysis on the Statistics__ 
-  * Right now, Trigram system has the best performance in terms of speed and the statistics. 
+  * Right now, Trigram system has the best performance. 
   * In fact, it is designed to be the main / core method of our sentiment analysis system, and it will be so for the finalized version of our system. 
 
 ### Conclusion and Future/Further Work
@@ -78,6 +79,6 @@ We shuffle our corpus first to add more randomization into the sampling process.
 
 * __Future/Further Work__
   * Special handling on negation and hyperbaton
-  * `TensorFlow.Keras` feat. `Word2Vec`; or, more generally, deep learning
+  * `TensorFlow.Keras` feat. `Word2Vec` and `sklearn`; or, more generally, deep learning
   * Quad-gram... (is this really worth doing? )
   * Larger and more accurately labeled corpus
