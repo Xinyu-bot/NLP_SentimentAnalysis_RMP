@@ -18,7 +18,7 @@ def main() -> None:
 
     # modify filename if needed
     INFILE = '../data/rmp_data/temp.csv' # please modify the temp.csv locally as wish, instead of changing this variable
-    OUTFILE = '../data/rmp_data/rmp_data_5002_15273.csv' # please change this variable directly: if file is created, it will be overrode; if not created, it will be created then
+    OUTFILE = '../data/rmp_data/rmp_data_noIndex3_all.csv' # please change this variable directly: if file is created, it will be overrode; if not created, it will be created then
 
     df = pd.read_csv(INFILE, header=0)
     df_out = pd.DataFrame(columns=['sentiment','text','quality','difficulty','prof_name'])

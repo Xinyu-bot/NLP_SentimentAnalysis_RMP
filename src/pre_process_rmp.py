@@ -7,19 +7,22 @@ def shuffle() -> None:
     test_set = '../data/rmp_data/processed/rmp_data_test.csv'
 
     df = pd.read_csv(INFILE, header=0)
+    df.drop_duplicates(inplace=True)
     df = df.sample(frac=1).reset_index(drop=True)
     row_count = df['label'].count()
     print(df['label'].value_counts())
     
 
     df = df.sort_values('label')
-    pos = df.head(5000)
-    neg = df.tail(5000)
+    pos = df.head(9000)
+    neg = df.tail(9000)
 
+    total = 9000 + 9000
     out = pos.append(neg, ignore_index=True)
     out = out.sample(frac=1).reset_index(drop=True)
-    training_size = 5000
-    test_size = 5000
+    test_size = int(total * 0.3 // 1)
+    training_size = total - test_size
+    
 
 
     df_train = out.head(training_size)
@@ -31,7 +34,7 @@ def shuffle() -> None:
 
 def main() -> None:
     # modify filename if needed
-    INFILE = '../data/rmp_data/rmp_data_5002_15273.csv' 
+    INFILE = '../data/rmp_data/rmp_data_noIndex3_all.csv' 
     OUTFILE = '../data/rmp_data/rmp_data_reversed.csv'
 
     df = pd.read_csv(INFILE, header=0)
