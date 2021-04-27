@@ -6,14 +6,14 @@ def main() -> None:
     ### DO NOT TOUCH ###
     # used to shuffled RMP_data and remove 'index' columns
 
-    df = pd.read_csv('../data/rmp_data/raw/rmp_data3.csv', header=0)
+    df = pd.read_csv('../data/rmp_data/raw/rmp_data_neg.csv', header=0)
     df.drop(columns='index', inplace=True)
     df.insert(loc=0, column='sentiment', value='')
     df = df.sample(frac=1).reset_index(drop=True)
     df.dropna(how='any', inplace=True)
     
     print(df.head())
-    df.to_csv('../data/rmp_data/rmp_data_noIndex3.csv', index=False)
+    df.to_csv('../data/rmp_data/rmp_data_noIndex_neg.csv', index=False)
     '''
 
     # modify filename if needed
@@ -47,7 +47,7 @@ def main() -> None:
 
     # write out the labeled csv file
     df_out.to_csv(OUTFILE, index=False)
-    
+
     return
 
 if __name__ == '__main__': 

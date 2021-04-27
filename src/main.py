@@ -18,21 +18,19 @@ STOP_WORDS = []
 
 def test_unigram_lexicon_based() -> None: 
     unigram_file = '../data/subjectivity_clues_hltemnlp05/subjclueslen1-HLTEMNLP05.tff'
+    unigram_file_extended = '../data/unigram/unigram_lexicon.csv'
     bigram_test_set = '../data/IMDB_data/Test.csv'
+    rmp_test = '../data/rmp_data/processed/rmp_data_test.csv'
 
-    unigram_lexicon = unigram_lexicon_based.generate_lexicon(unigram_file) 
+    unigram_lexicon = unigram_lexicon_based.generate_lexicon(unigram_file_extended) 
 
     e = time()
     # positive counters
-    correct_pos = 0
-    system_pos = 0
-    label_pos = 0
+    correct_pos, system_pos, label_pos = 0, 0, 0
     # negative counters
-    correct_neg = 0
-    system_neg = 0
-    label_neg = 0
+    correct_neg, system_neg, label_neg = 0, 0, 0
     # read the testing corpus
-    test_df = pd.read_csv(bigram_test_set, header=0)
+    test_df = pd.read_csv(rmp_test, header=0)
     # loop through the testing corpus and check the sentiment analysis result and labelled sentiment line by line
     for row in test_df.itertuples(index=False):
         text, label = row[0], row[1]
@@ -95,13 +93,9 @@ def test_vector_similarity() -> None:
     system_output = vector_similarity.analyze_vector_similarity(df, comments) 
 
     # positive counters
-    correct_pos = 0
-    system_pos = 0
-    label_pos = 0
+    correct_pos, system_pos, label_pos = 0, 0, 0
     # negative counters
-    correct_neg = 0
-    system_neg = 0
-    label_neg = 0
+    correct_neg, system_neg, label_neg = 0, 0, 0
     # loop through the testing corpus and check the sentiment analysis result and labelled sentiment line by line
     for index, res in enumerate(system_output): 
         if float(res[0]) > float(res[1]): 
@@ -141,11 +135,14 @@ def test_vector_similarity() -> None:
 
 def test_enhanced_bigram() -> None: 
     # define files for the system
-    unigram_file = '../data/subjectivity_clues_hltemnlp05/subjclueslen1-HLTEMNLP05.tff'
-    unigram_file_extended = '../data/unigram/unigram_lexicon.csv'
-    bigram_dev_set = '../data/IMDB_data/Valid.csv'
-    bigram_train_set = '../data/IMDB_data/Train.csv'
-    bigram_test_set = '../data/IMDB_data/Test.csv'
+    # unigram_file = '../data/subjectivity_clues_hltemnlp05/subjclueslen1-HLTEMNLP05.tff'
+    unigram_file_extended = '../data/unigram/unigram_lexicon_extended.csv'
+    # bigram_dev_set = '../data/IMDB_data/Valid.csv'
+    # bigram_train_set = '../data/IMDB_data/Train.csv'
+    # bigram_test_set = '../data/IMDB_data/Test.csv'
+    RMP_train_set = '../data/rmp_data/processed/rmp_data_train.csv'
+    RMP_test_set = '../data/rmp_data/processed/rmp_data_test.csv'
+    TEST_FILE = RMP_test_set
 
     # generate unigram model based on lexicon
     a = time()
@@ -156,22 +153,18 @@ def test_enhanced_bigram() -> None:
     # generate bigram model based on corpus
     c = time()
     porterStemmer = PorterStemmer()
-    bigram_model = bigram.process_dev([bigram_dev_set, bigram_train_set], porterStemmer)
+    bigram_model = bigram.process_dev([RMP_train_set], porterStemmer)
     d = time()
     print("Time cost for bigram model generating: {0} sec".format(round((d - c), 3)))
 
     # test our enhanced bigram system by the testing set
     e = time()
     # positive counters
-    correct_pos = 0
-    system_pos = 0
-    label_pos = 0
+    correct_pos, system_pos, label_pos = 0, 0, 0
     # negative counters
-    correct_neg = 0
-    system_neg = 0
-    label_neg = 0
+    correct_neg, system_neg, label_neg = 0, 0, 0
     # read the testing corpus
-    test_df = pd.read_csv(bigram_test_set, header=0)
+    test_df = pd.read_csv(TEST_FILE, header=0)
     # loop through the testing corpus and check the sentiment analysis result and labelled sentiment line by line
     for row in test_df.itertuples(index=False):
         text, label = row[0], row[1]
