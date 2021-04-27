@@ -28,7 +28,7 @@ __...__
 * __RMP__: 
   * Retrieved from RateMyProfessor.com and labeled ourselves
   * Total count is increasing, as for 4.27, we have over 30k comments labeled as positive, and over 9k comments labeled as negative. Will catch up the amount of negative comments in the future. 
-* __Twitter1600k__: 
+* __Twitter1600k__  (_Disqualified due to bad data content_): 
   * retrieve online but already forgot the exact source. 
   * contains tons of slangs, illegal grammar/spelling/punctuation. 
   * adding this corpus to our system will significantly lowers performance in every aspect. 
