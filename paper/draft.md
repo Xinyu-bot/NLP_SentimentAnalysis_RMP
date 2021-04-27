@@ -49,9 +49,9 @@ __...__
 * __corpus-based trigram model__ (with bigram model back-off)
   * same as bigram model above
   * but we back-off to bigram model first, and if still not found, we back-off to unigram model
-* __vector similarity__
-  * TF-IDF score for vectorized sentences. 
-  * compute vector similarity between each input sentence and the corpus, find the top 20 most related instances in the corpus and compute average sentiment of the instances. 
+* __vector similarity model__
+  * TF-IDF score for vectorized sentences then compute vector similarity
+  * use average sentiment score for top N instances from the corpus
 
 ### Result
 We shuffle our corpus first to add more randomization into the sampling process. Then we train our system with 70% of the corpus, test with the 30% left, then record the Precisions, Recalls, and F-measures on Positive, Negative, and Overall. Data shown below is only for reference and should not be considered _finalized_. 
