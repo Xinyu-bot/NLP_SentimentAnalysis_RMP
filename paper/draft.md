@@ -60,7 +60,7 @@ We shuffle our corpus first to add more randomization into the sampling process.
 * __corpus-based unigram__ 
   * middle in the 60s
 * __bigram__
-  * middle in the 80s 
+  * low in the 80s 
 * __trigram__
   * high in the 80s
 * __vector similarity__
