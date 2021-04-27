@@ -13,33 +13,14 @@ from nltk import PorterStemmer
 # Out-of-Model threshold
 # if a n-gram sequence occurred lower than this threshold, 
 # we consider it as not valid and back-off to a lower n-gram model
-OOM_THRESHOLD = 2
-
-# helper function to help remove undesired numbers (with even float type)
-def isNumber(string: str) -> bool:
-    # try to float the token if no Error happens then it is a number
-    try:
-        float(string)
-        return True
-    # if it cannot be floated, it is not a number
-    except ValueError:
-        return False
-
-# helper function removing undesired tokens and return the cleanned tokens for modulability 
-def tokens_cleaner(tokens: list) -> set:
-    # evil set subtraction for best performance yet no existing order preserved
-    tokens = {token for token in tokens if token not in string.punctuation and not isNumber(token)}
-    # (deprecated) return a subset of previous cleaned results by furthur cleaning 
-    return tokens
+OOM_THRESHOLD = 0
 
 # helper function to parse text from bigram dataset and update model accordingly
 def process_row(row: tuple, trigram_model: dict, bigram_model: dict, porterStemmer: PorterStemmer) -> None:
     # unpack the row
     text, sentiment = row[0], row[1]
     tokens = word_tokenize(text)
-    tokens = [token.lower() for token in tokens]
-    # tokens = tokens_cleaner(tokens)
-    # tokens = [porterStemmer.stem(token) for token in tokens]
+    tokens = [porterStemmer.stem(token.lower()) for token in tokens]
 
     # loop through tokens    
     index = 0
@@ -72,9 +53,7 @@ def process_row(row: tuple, trigram_model: dict, bigram_model: dict, porterStemm
 # unigram backoff <-- last defense before neutralizing the individual token
 # use lexicon based unigram model, because it provides better result
 def unigram_backoff(unigram_model: unigram_lexicon_based.Lexicon, bigram: str) -> tuple: 
-    
-    temp = []
-
+    _sum = 0
     # unpack bigram into unigrams
     unigrams = bigram.split(' ')
     for unigram in unigrams: 
@@ -90,10 +69,9 @@ def unigram_backoff(unigram_model: unigram_lexicon_based.Lexicon, bigram: str) -
         except AttributeError:
             polarity = 0
         
-        temp.append(polarity)
+        _sum += polarity
 
     # generate returned value
-    _sum = sum(temp)
     if _sum == 0:
         ret = (1, 1)
     elif _sum > 0: 
@@ -130,12 +108,44 @@ def bigram_backoff(bigram_model: dict, unigram_model: unigram_lexicon_based.Lexi
 
     return ret
 
+def analyze_bigram(sentence: str, bigram_model: dict, unigram_model: unigram_lexicon_based.Lexicon, STOP_WORDS: list, porterStemmer: PorterStemmer) -> tuple: 
+    # clean the input
+    tokens = word_tokenize(sentence)
+    tokens = [porterStemmer.stem(token.lower()) for token in tokens]
+
+    # lazy generate bigrams from sentence
+    bigrams = [' '.join([tokens[i], tokens[i + 1]]) for i in range(len(tokens)) if i < len(tokens) - 1]
+
+    pos, neg = 0, 0
+    # loop through each trigrams of the current sentence
+    for bigram in bigrams: 
+        # remove stop words presence directly
+        # if any((token in STOP_WORDS for token in bigram)): 
+        #    continue
+
+        # retrieve pos and neg occurrence from trigram model
+        arr = bigram_model.get(bigram, [-1, -1])
+        # if not found or occurrence too few, backoff to unigram model
+        if sum(arr) < OOM_THRESHOLD: 
+            arr = unigram_backoff(unigram_model, bigram)
+
+        _pos, _neg = arr[0], arr[1]
+        pos += _pos / (_pos + _neg)
+        neg += _neg / (_pos + _neg)
+
+    count_sum = pos + neg
+    try: 
+        # in form of (positive, negative)
+        weight = (round(pos / count_sum, 3), round(neg / count_sum, 3))
+    except ZeroDivisionError: 
+        weight = (0, 0)
+
+    return weight
+
 def analyze_trigram(sentence: str, trigram_model: dict, bigram_model: dict, unigram_model: unigram_lexicon_based.Lexicon, STOP_WORDS: list, porterStemmer: PorterStemmer) -> tuple: 
     # clean the input
     tokens = word_tokenize(sentence)
-    tokens = [token.lower() for token in tokens]
-    # tokens = tokens_cleaner(tokens)
-    # tokens = [porterStemmer.stem(token) for token in tokens]
+    tokens = [porterStemmer.stem(token.lower()) for token in tokens]
 
     # lazy generate trigrams from sentence
     trigrams = [' '.join((tokens[i], tokens[i + 1], tokens[i + 2])) for i in range(len(tokens)) if i < len(tokens) - 2]
@@ -192,15 +202,15 @@ def train_model(filenames: tuple, porterStemmer: PorterStemmer) -> dict:
    
     return trigram_model, bigram_model
 
-def main(regenerate: int, onRMP: int) -> None:
+def main(regenerate: int, test_corpus: str, bigram_or_trigram: str) -> None:
     # initialize basic setups
     unigram_file_extended = '../data/unigram/unigram_lexicon_extended.csv'
-    bigram_dev_set = '../data/IMDB_data/Valid.csv'
-    bigram_train_set = '../data/IMDB_data/Train.csv'
+    # bigram_dev_set = '../data/IMDB_data/Valid.csv'
+    # bigram_train_set = '../data/IMDB_data/Train.csv'
     bigram_test_set = '../data/IMDB_data/Test.csv'
     RMP_train_set = '../data/rmp_data/processed/rmp_data_train.csv'
     RMP_test_set = '../data/rmp_data/processed/rmp_data_test.csv'
-    TEST_FILE = RMP_test_set if onRMP else bigram_test_set
+    TEST_FILE = RMP_test_set if test_corpus == 'RMP' else bigram_test_set
     porterStemmer = PorterStemmer()
     STOP_WORDS = []
 
@@ -213,7 +223,7 @@ def main(regenerate: int, onRMP: int) -> None:
     # maybe model algorithmics have been changed, then we need to regenerate model
     if regenerate: 
         c = time()
-        trigram_model, bigram_model = train_model((RMP_train_set, bigram_dev_set, bigram_train_set ), porterStemmer)
+        trigram_model, bigram_model = train_model((RMP_train_set, ), porterStemmer)
         d = time()
         print("Time cost for generating models: {0} sec".format(round((d - c), 3)))
 
@@ -224,7 +234,7 @@ def main(regenerate: int, onRMP: int) -> None:
         with open('bigram.model', 'wb') as outstream: 
             pickle.dump(bigram_model, outstream)
         __ = time()
-        print("Time cost for exporting models: {0} sec".format(round((__ - _), 3)))
+        print("Time cost for exporting models:\t  {0} sec".format(round((__ - _), 3)))
     # import model from bytefiles to save 10x times from generating model from corpus
     else: 
         _ = time()
@@ -233,7 +243,7 @@ def main(regenerate: int, onRMP: int) -> None:
         with open('bigram.model', 'rb') as handle: 
             bigram_model = pickle.load(handle)
         __ = time()
-        print("Time cost for importing models: {0} sec".format(round((__ - _), 3)))
+        print("Time cost for importing models:\t  {0} sec".format(round((__ - _), 3)))
 
     # test our trigram system by the testing set
     e = time()
@@ -246,13 +256,13 @@ def main(regenerate: int, onRMP: int) -> None:
     # loop through the testing corpus and check the sentiment analysis result and labelled sentiment line by line
     for row in test_df.itertuples(index=False):
         # unpack row
-        if not onRMP:
-            text, label = row[0], row[1] # for IMDB corpus
+        text, label = row[0], row[1]
+        # analyze row based on trigram or bigram
+        if bigram_or_trigram == 'trigram':
+            res = analyze_trigram(text, trigram_model, bigram_model, unigram_model, STOP_WORDS, porterStemmer)
         else: 
-            text, label = row[0], row[1] # for RMP corpus
-        # analyze row based on trigram
-        res = analyze_trigram(text, trigram_model, bigram_model, unigram_model, STOP_WORDS, porterStemmer)
-        # print("Current line {0}: result {1}, label {2}".format(total, res, label))
+            res = analyze_bigram(text, bigram_model, unigram_model, STOP_WORDS, porterStemmer)
+        # examine the result
         if float(res[0]) > float(res[1]): 
             if int(label) == 1: 
                 correct_pos += 1
@@ -271,7 +281,7 @@ def main(regenerate: int, onRMP: int) -> None:
         else: 
             label_neg += 1   
     f = time()
-    print("Time cost for system testing: {0} sec".format(round((f - e), 3)))
+    print("Time cost for system testing: \t  {0} sec".format(round((f - e), 3)))
     print("=" * 42)
 
     # display performance measures on screen
@@ -291,7 +301,10 @@ def main(regenerate: int, onRMP: int) -> None:
 
 if __name__ == '__main__': 
     try: 
-        main(regenerate=int(sys.argv[1]), onRMP=int(sys.argv[2]))
-    except IndexError: 
-        print("Usage: \nFirst field: 0 for importing models, 1 for generating models\nSecond field: 0 for IMDB set, 1 for RMP set")
+        assert(str(sys.argv[2]) == 'IMDB' or str(sys.argv[2]) == 'RMP')
+        assert(str(sys.argv[3]) == 'bigram' or str(sys.argv[3]) == 'trigram')
+        assert(int(sys.argv[1]) == 0 or int(sys.argv[1]) == 1)
+        main(regenerate=int(sys.argv[1]), test_corpus=str(sys.argv[2]), bigram_or_trigram=str(sys.argv[3]))
+    except (AssertionError, IndexError) as err:  
+        print("Usage: \n\tFirst field: 0 for importing exists models, 1 for re-generating models\n\tSecond field: IMDB or RMP\n\tThird field: bigram or trigram")
     

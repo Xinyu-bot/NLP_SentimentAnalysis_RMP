@@ -14,10 +14,10 @@ def shuffle() -> None:
     
 
     df = df.sort_values('label')
-    pos = df.head(9000)
-    neg = df.tail(9000)
+    pos = df.head(12000)
+    neg = df.tail(12000)
 
-    total = 9000 + 9000
+    total = 12000 + 12000
     out = pos.append(neg, ignore_index=True)
     out = out.sample(frac=1).reset_index(drop=True)
     test_size = int(total * 0.3 // 1)
