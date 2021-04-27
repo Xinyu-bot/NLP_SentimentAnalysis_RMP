@@ -1,3 +1,6 @@
+## Group 8 Sentiment Analysis on RateMyProfessor
+Xinyu Xie, Qian (Chasity) Chen, Yutang (Tony) Li
+
 ### Abstract
 __...__
 
@@ -40,7 +43,7 @@ __...__
   * build unigram model based on the lexicon we have, and examine each sentence unigram by unigram. 
 * __corpus-based unigram model__
   * build unigram model based on the corpus we have, and examine each sentence unigram by unigram. 
-* __corpus-based bigram model__ (with unigram back-off)
+* __corpus-based bigram model__ (with lexicon-based unigram model back-off)
   * build a bigram model and a unigram model based on the corpus we have, and examine each sentence bigram by bigram
   * if a specific bigram sequence is not found in our bigram model, we back-off to the unigram model. 
 * __corpus-based trigram model__ (with bigram model back-off)
