@@ -50,7 +50,7 @@ __...__
   * same as bigram model above
   * but we back-off to bigram model first, and if still not found, we back-off to unigram model
 * __vector similarity model__
-  * re-use code written for the IR homwork, so 100% originality. No `sklearn` module involved.
+  * re-use code written for the IR homework, so 100% originality. No `sklearn` module involved.
   * TF-IDF score for vectorized sentences then compute vector similarity
   * use average sentiment score for top N instances from the corpus
 
@@ -60,25 +60,30 @@ We shuffle our corpus first to add more randomization into the sampling process.
 **_After RMP corpus is sufficiently large in the end and all methods are optimized and finalized, we will rerun each test and use that results for our paper._**
 
 * __lexicon-based unigram__
-  * middle in the 70s
+  * average at middle in the 60s: variance very large; very bad at negative sentiment detection
 * __corpus-based unigram__ 
   * middle in the 60s
 * __bigram__
-  * low in the 80s 
+  * almost 90s 
 * __trigram__
-  * high in the 80s
+  * high in the 80s, 1% off bigrams
 * __vector similarity__
   * around 80s
-* __Performance Analysis on the Statistics__ 
-  * Right now, Trigram system has the best performance. 
+* __Performance Analysis__ 
+  * Right now, N-gram system has the best performance over Vector Similarity system in terms of speed and statistics. 
   * In fact, it is designed to be the main / core method of our sentiment analysis system, and it will be so for the finalized version of our system. 
+  * We've read a few online blogs about using a `Sequential` model of `TensorFlow.Keras` and incorporating other modules like `word2vec` and `sklearn`. Statistics for such a simply/naively implemented neural network are about high 70s or low 80s, which is significantly lower than our N-grams system. Also, our N-grams model takes much less time to run. 
 
 ### Conclusion and Future/Further Work
 * __Conclusion__ 
-  * No conclusion is drawn so far since our project is not finalized yet. 
+  * The myth of **_"Power of Two"_** confirmed! We achieve huge improvement from unigram to bigram, but less (well, actually none) improvement from bigram to trigram...
+  * No other conclusion is drawn so far since our project is not finalized yet. 
 
 * __Future/Further Work__
-  * Special handling on negation and hyperbaton
-  * `TensorFlow.Keras` feat. `Word2Vec` and `sklearn`; or, more generally, deep learning
-  * Quad-gram... (is this really worth doing? )
   * Larger and more accurately labeled corpus
+  * Special handling on negation and hyperbaton: not, never, but, however, etc.
+  * Detection of Sarcasm: we read blogs and essays that this is one of the frontier topics
+  * Sentence or clause boundary preservation for Trigram 
+  * `TensorFlow.Keras` feat. `Word2Vec` and `sklearn`; or, more generally, deep learning
+  * Extension on N-gram: maybe quad-gram... (is this really worth doing? Trigram's negative improvement is a thing)
+  
