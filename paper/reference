@@ -7,3 +7,11 @@ Hutto, C.J. & Gilbert, E.E. (2014). VADER: A Parsimonious Rule-based Model for S
 SentiWords: 
 Gatti, Lorenzo, Marco Guerini, and Marco Turchi. "SentiWords: Deriving a high precision and high coverage lexicon for sentiment analysis." IEEE Transactions on Affective Computing 7.4 (2016): 409-421.
 
+IMDB: 
+https://www.kaggle.com/columbine/imdb-dataset-sentiment-analysis-in-csv-format
+
+W2V: 
+https://www.ahmedbesbes.com/blog/sentiment-analysis-with-keras-and-word-2-vec
+
+LR_SGD_MNB: 
+https://www.kaggle.com/lakshmi25npathi/sentiment-analysis-of-imdb-movie-reviews/notebook

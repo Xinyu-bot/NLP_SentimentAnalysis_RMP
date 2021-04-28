@@ -4,6 +4,7 @@ from nltk.corpus import stopwords
 from time import time
 import math
 import pandas as pd
+import os
 
 closed_class_stop_words = ['a','the','an','and','or','but','about','above','after','along','amid','among',\
                            'as','at','by','for','from','in','into','like','minus','near','of','off','on',\
@@ -28,6 +29,8 @@ closed_class_stop_words = ['a','the','an','and','or','but','about','above','afte
                            'you','your','yours','me','my','mine','I','we','us','much','and/or'
                            ] 
 
+# override to empty because the words above are not good enough
+closed_class_stop_words = []
 # extend stop_words List by nltk stop words
 closed_class_stop_words += stopwords.words("english")                     
 
@@ -95,7 +98,7 @@ def corpus_parsing(df: pd.DataFrame) -> dict:
     corpusDict = {}
     row_count = 0
 
-    for row in df['SentimentText']:
+    for row in df['text']:
         row = word_tokenize(row)
         corpusDict[row_count] = [row, [0 for _ in range(len(row))]]
         row_count += 1
@@ -206,47 +209,48 @@ def cosine_similarity_processing(commentDict: dict, corpusDict: dict) -> dict:
             cosineSimilarity = cosine_similarity(commentFeatureVector, newFeatureVector)
             # append two keys and cosineSimilarity to comment_output list
             if cosineSimilarity > 0:
-                # for some reasons there are undesired `0` char on the left of keys under 100, 
-                # e.g. 1 would become 001, 10 would become 010... so we left strip the zeros
                 comment_output.append((corpusKey, cosineSimilarity))
 
         # sort the comment_output list after one commentKey is done
         comment_output.sort(key = lambda x: x[1], reverse = True)
 
-        # only extract the top 50 most related reviews
-        most_related_50 = []
-        for i in range(50):
-            most_related_50.append(comment_output[i])
+        # only extract the top 20 most related reviews
+        most_related_20 = []
+        for i in range(20):
+            try: 
+                most_related_20.append(comment_output[i])
+            except IndexError: 
+                continue
         # add to the output dict
-        output[commentKey] = most_related_50
+        output[commentKey] = most_related_20
     
     return output
 
-def analyze_vector_similarity(df: pd.DataFrame, comments: list) -> tuple: 
-
-    
+def analyze_vector_similarity(df: pd.DataFrame, comments: list) -> list: 
     cp_s = time()
     corpusDict = corpus_parsing(df)
     cp_e = time()
-    # print("Time cost for corpus parsing: {0}.".format(cp_e - cp_s))
+    print("Time cost for corpus parsing: {0} sec".format(round((cp_e - cp_s), 3)))
     
     cm_s = time()
     commentDict = comment_parsing(comments)
     cm_e = time()
-    # print("Time cost for comments parsing: {0}.".format(cm_e - cm_s))
+    print("Time cost for comments parsing: {0} sec".format(round((cm_e - cm_s), 3)))
 
     cs_s = time()
     output = cosine_similarity_processing(commentDict, corpusDict)
     cs_e = time()
-    # print("Time cost for cosine similarity processing: {0}.".format(cs_e - cs_s))
+    print("Time cost for cosine similarity processing: {0} sec".format(round((cs_e - cs_s), 3)))
 
+    a = time()
+    system_output = []
     for key, value in output.items():
 
         pos = 0
         neg = 0
         for i in value:
-            _sentiment = int(df.iloc[i[0]].Sentiment)
-            if _sentiment == -1: 
+            _sentiment = int(df.iloc[i[0]].label)
+            if _sentiment == 0: 
                 neg += 1
             else: 
                 pos += 1
@@ -258,10 +262,12 @@ def analyze_vector_similarity(df: pd.DataFrame, comments: list) -> tuple:
         except ZeroDivisionError: 
             weight = (0, 0)
 
-        print("This comment has weighed sentiment as: \n\tpositive: {0}, negative: {1}"
-                .format(weight[0], weight[1]))
+        system_output.append(weight)
+    b = time()
+    print("Time cost for generating output: {0} sec".format(round((b - a), 3)))
+
+    return system_output
     
-        
 
 if __name__ == '__main__': 
     
@@ -278,15 +284,31 @@ if __name__ == '__main__':
         "He teaches so fast that I don't even know what he is saying most of the times. His demonstrations in class are also very unclear because it is on things that we haven't even learned. He literally expects us to know python when this class is for beginners.", 
         "This should be a no prior computer science experience foundation course, but he teaches the course so fast that students without any computer science experience find it difficult to catch with his progress. On the lectures he does programming demonstrations that students even don't have any foundations on.", 
         "Adam is very kind as a person and is easy to approach and talk to. However, as a professor, his teaching style results in extremely tedious and dull lectures that ultimately have turned me away from the subject matter. His lectures are unbelievably monotonous and hard to follow. Homeworks are long and tedious. Exams are a breeze.", 
-        "His lectures are painful; he reads dense powerpoints with lots of jargon, and it's unclear what's important and what's filler. The assignments are difficult, but more because there's little to no guidance given. The tests are much easier, so this is a relatively easy class but I'd look elsewhere."
+        "His lectures are painful; he reads dense powerpoints with lots of jargon, and it's unclear what's important and what's filler. The assignments are difficult, but more because there's little to no guidance given. The tests are much easier, so this is a relatively easy class but I'd look elsewhere.", 
         "Firstly, Madsen is very knowledgable but he tries to prove this. We were given an Intermediate Micro textbook, however we don't follow it and go far beyond the class. Most lectures do not cover the economics topic but dive into multivariable calc with lots of confusing notation. Feel like I can do math but don't actually understand the economics.", 
         "Short and Simple: Do not take if you care about your GPA. Madsen is not a good professor, and his tests are beyond what is learned in class or homework's.", 
         "This guy does not know the first thing about writing exams. He asked students in his Intermediate Microeconomics to build an ALGORITHM on the exam. Who does that? He is a terrible professor and he does not have the slightest clue about the actual caliber of undergraduate students and thinks we're all PhD students back in Stanford with him.", 
         "Professor Madsen is going to ruin your GPA and you are not going to learn. His homework are extremely difficult and his exams are even more exponentially difficult, impossible even. His exams and homework do not resemble the slides he teaches from, which he did not even make. He is the worst professor I've ever taken in my life."
         ]
     
-    infile_name = '../data/bigram/bigram_dev.csv'
+    bigram_dev_set = '../data/IMDB_data/Valid.csv'
+    bigram_train_set = '../data/IMDB_data/Train.csv'
+    bigram_test_set = '../data/IMDB_data/Test.csv'
+    rmp_train = '../data/rmp_data/processed/rmp_data_train.csv'
+    rmp_test = '../data/rmp_data/processed/rmp_data_test.csv'
 
-    df = pd.read_csv(infile_name)
+    df = pd.read_csv(rmp_train, header=0)
+
+    comments = []
+    with open(rmp_test, 'r') as instream: 
+        next(instream)
+        for line in instream: 
+            line = line.strip(os.linesep).split(',')
+            try: 
+                comments.append(line[0])
+            except: 
+                continue
+    
+    print(len(comments))
 
     analyze_vector_similarity(df, comments) 
