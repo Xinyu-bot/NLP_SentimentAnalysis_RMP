@@ -1,19 +1,24 @@
 import pandas as pd
 import numpy as np
-import os
 import unigram_lexicon_based
 import pickle
 import sys
-import string
 from nltk.corpus import stopwords
 from time import time
-from nltk.tokenize import word_tokenize
+from nltk.tokenize import ToktokTokenizer, word_tokenize
 from nltk import PorterStemmer
 
 # Out-of-Model threshold
 # if a n-gram sequence occurred lower than this threshold, 
 # we consider it as not valid and back-off to a lower n-gram model
 OOM_THRESHOLD = 0
+tokTok = ToktokTokenizer().tokenize
+
+# helper function to enforce the sentence boundary and NP/VP parsing
+def parser() -> tuple: 
+    ret = set()
+
+    return ret
 
 # helper function to parse text from bigram dataset and update model accordingly
 def process_row(row: tuple, trigram_model: dict, bigram_model: dict, porterStemmer: PorterStemmer) -> None:
@@ -210,7 +215,7 @@ def main(regenerate: int, test_corpus: str, bigram_or_trigram: str) -> None:
     bigram_test_set = '../data/IMDB_data/Test.csv'
     RMP_train_set = '../data/rmp_data/processed/rmp_data_train.csv'
     RMP_test_set = '../data/rmp_data/processed/rmp_data_test.csv'
-    TEST_FILE = RMP_test_set if test_corpus == 'RMP' else bigram_test_set
+    TEST_FILE = RMP_test_set if test_corpus == 'rmp' else bigram_test_set
     porterStemmer = PorterStemmer()
     STOP_WORDS = []
 
@@ -301,10 +306,10 @@ def main(regenerate: int, test_corpus: str, bigram_or_trigram: str) -> None:
 
 if __name__ == '__main__': 
     try: 
-        assert(str(sys.argv[2]) == 'IMDB' or str(sys.argv[2]) == 'RMP')
+        assert(str(sys.argv[2]) == 'imdb' or str(sys.argv[2]) == 'rmp')
         assert(str(sys.argv[3]) == 'bigram' or str(sys.argv[3]) == 'trigram')
         assert(int(sys.argv[1]) == 0 or int(sys.argv[1]) == 1)
         main(regenerate=int(sys.argv[1]), test_corpus=str(sys.argv[2]), bigram_or_trigram=str(sys.argv[3]))
     except (AssertionError, IndexError) as err:  
-        print("Usage: \n\tFirst field: 0 for importing exists models, 1 for re-generating models\n\tSecond field: IMDB or RMP\n\tThird field: bigram or trigram")
+        print("Usage: \n\tFirst field: 0 for importing exists models, 1 for re-generating models\n\tSecond field: imdb or rmp\n\tThird field: bigram or trigram")
     
