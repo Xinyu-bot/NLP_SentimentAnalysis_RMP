@@ -7,6 +7,7 @@ from nltk.corpus import stopwords
 from time import time
 from nltk.tokenize import ToktokTokenizer, word_tokenize
 from nltk import PorterStemmer
+import random
 
 # Out-of-Model threshold
 # if a n-gram sequence occurred lower than this threshold, 
@@ -145,6 +146,11 @@ def analyze_bigram(sentence: str, bigram_model: dict, unigram_model: unigram_lex
     except ZeroDivisionError: 
         weight = (0, 0)
 
+    if weight[0] == weight[1]: 
+        if random.randint(0, 1): 
+            return (1, 0)
+        else: 
+            return (0, 1)
     return weight
 
 def analyze_trigram(sentence: str, trigram_model: dict, bigram_model: dict, unigram_model: unigram_lexicon_based.Lexicon, STOP_WORDS: list, porterStemmer: PorterStemmer) -> tuple: 
@@ -155,8 +161,7 @@ def analyze_trigram(sentence: str, trigram_model: dict, bigram_model: dict, unig
     # lazy generate trigrams from sentence
     trigrams = [' '.join((tokens[i], tokens[i + 1], tokens[i + 2])) for i in range(len(tokens)) if i < len(tokens) - 2]
 
-    pos = 0
-    neg = 0
+    pos, neg = 0, 0
     # loop through each trigrams of the current sentence
     for trigram in trigrams: 
         # remove stop words presence directly
@@ -180,6 +185,11 @@ def analyze_trigram(sentence: str, trigram_model: dict, bigram_model: dict, unig
     except ZeroDivisionError: 
         weight = (0, 0)
 
+    if weight[0] == weight[1]: 
+        if random.randint(0, 1): 
+            return (1, 0)
+        else: 
+            return (0, 1)
     return weight
 
 # process the dataset
@@ -197,8 +207,7 @@ def train_model(filenames: tuple, porterStemmer: PorterStemmer) -> dict:
         ...
     }
     '''
-    trigram_model = {}
-    bigram_model = {}
+    trigram_model, bigram_model = {}, {}
 
     # loop through the set
     for row in df.itertuples(index=False):
@@ -207,7 +216,7 @@ def train_model(filenames: tuple, porterStemmer: PorterStemmer) -> dict:
    
     return trigram_model, bigram_model
 
-def main(regenerate: int, test_corpus: str, bigram_or_trigram: str) -> None:
+def main(regenerate: int, test_corpus: str, ngram: str) -> None:
     # initialize basic setups
     unigram_file_extended = '../data/unigram/unigram_lexicon_extended.csv'
     # bigram_dev_set = '../data/IMDB_data/Valid.csv'
@@ -263,7 +272,7 @@ def main(regenerate: int, test_corpus: str, bigram_or_trigram: str) -> None:
         # unpack row
         text, label = row[0], row[1]
         # analyze row based on trigram or bigram
-        if bigram_or_trigram == 'trigram':
+        if ngram == 'trigram':
             res = analyze_trigram(text, trigram_model, bigram_model, unigram_model, STOP_WORDS, porterStemmer)
         else: 
             res = analyze_bigram(text, bigram_model, unigram_model, STOP_WORDS, porterStemmer)
@@ -306,10 +315,14 @@ def main(regenerate: int, test_corpus: str, bigram_or_trigram: str) -> None:
 
 if __name__ == '__main__': 
     try: 
-        assert(str(sys.argv[2]) == 'imdb' or str(sys.argv[2]) == 'rmp')
-        assert(str(sys.argv[3]) == 'bigram' or str(sys.argv[3]) == 'trigram')
-        assert(int(sys.argv[1]) == 0 or int(sys.argv[1]) == 1)
-        main(regenerate=int(sys.argv[1]), test_corpus=str(sys.argv[2]), bigram_or_trigram=str(sys.argv[3]))
-    except (AssertionError, IndexError) as err:  
+        regenerate = int(sys.argv[1])
+        corpus = str(sys.argv[2])
+        ngram = str(sys.argv[3])
+        assert(int(regenerate) == 0 or int(regenerate) == 1)
+        assert(str(corpus) == 'imdb' or str(corpus) == 'rmp')
+        assert(str(ngram) == 'bigram' or str(ngram) == 'trigram')
+    except (ValueError, AssertionError, IndexError) as err:  
         print("Usage: \n\tFirst field: 0 for importing exists models, 1 for re-generating models\n\tSecond field: imdb or rmp\n\tThird field: bigram or trigram")
-    
+        exit(1)
+    else: 
+        main(regenerate=regenerate, test_corpus=corpus, ngram=ngram)
