@@ -28,6 +28,7 @@ def main():
     #   (1, 2500000，1000), 
     #   (9, 2500000),
     #   (5, 2500000)
+    #   (0, 9000, 1)
 
     for t in tid:
         try: 
@@ -79,8 +80,6 @@ def main():
         except: 
             print(t)
             continue
-
-        
 
     print("Total number of professors: " + str(len(prof_list)))
     print("Total number of comments: " + str(sum([len(prof['comments']) for prof in prof_list])))
