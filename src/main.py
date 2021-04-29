@@ -19,7 +19,6 @@ STOP_WORDS = []
 def test_unigram_lexicon_based() -> None: 
     unigram_file = '../data/subjectivity_clues_hltemnlp05/subjclueslen1-HLTEMNLP05.tff'
     unigram_file_extended = '../data/unigram/unigram_lexicon.csv'
-    bigram_test_set = '../data/IMDB_data/Test.csv'
     rmp_test = '../data/rmp_data/processed/rmp_data_test.csv'
 
     unigram_lexicon = unigram_lexicon_based.generate_lexicon(unigram_file_extended) 

@@ -1,12 +1,10 @@
-import os
 import pandas as pd
 
 def main() -> None: 
-    '''
     ### DO NOT TOUCH ###
     # used to shuffled RMP_data and remove 'index' columns
 
-    df = pd.read_csv('../data/rmp_data/raw/rmp_data_neg.csv', header=0)
+    df = pd.read_csv('../data/rmp_data/raw/rmp_data_neg2.csv', header=0)
     df.drop(columns='index', inplace=True)
     df.insert(loc=0, column='sentiment', value='')
     df = df.sample(frac=1).reset_index(drop=True)
@@ -14,11 +12,14 @@ def main() -> None:
     
     print(df.head())
     df.to_csv('../data/rmp_data/rmp_data_noIndex_neg.csv', index=False)
-    '''
 
+    return
+    
+    
+def main2() -> None: 
     # modify filename if needed
     INFILE = '../data/rmp_data/temp.csv' # please modify the temp.csv locally as wish, instead of changing this variable
-    OUTFILE = '../data/rmp_data/rmp_data_noIndex3_all.csv' # please change this variable directly: if file is created, it will be overrode; if not created, it will be created then
+    OUTFILE = '../data/rmp_data/rmp_data_1234567.csv' # please change this variable directly: if file is created, it will be overrode; if not created, it will be created then
 
     df = pd.read_csv(INFILE, header=0)
     df_out = pd.DataFrame(columns=['sentiment','text','quality','difficulty','prof_name'])
@@ -51,4 +52,4 @@ def main() -> None:
     return
 
 if __name__ == '__main__': 
-    main()
+    main2()
