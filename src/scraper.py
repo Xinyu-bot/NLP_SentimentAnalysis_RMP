@@ -20,10 +20,14 @@ def main():
 
     base_url = 'https://www.ratemyprofessors.com/ShowRatings.jsp?tid='
     # A list of teacher id whose comments we will fetch
-    tid = [x for x in list(range(8000, 9000, 1)) if (x % 100 != 0 and x % 1000 not in [0, 1, 2, 3, 4, 5, 6, 7, 8, 9])]
-    # [1302, 2224004, 1576103, 1051004, 2105994, 2291871, 1482580, 2454762, 1032165, 2291493, 1134872, 1889463, 919428, 2190976, 534980]
-    # range(0, 9000, 1)
 
+    tid = [x for x in list(range(1000, 2000, 1)) if (x % 100 != 0 and (x % 1000 not in [0, 1, 2, 3, 4, 5, 6, 7, 8, 9]))]
+    # [1302, 2224004, 1576103, 1051004, 2105994, 2291871, 1482580, 2454762, 1032165, 2291493, 1134872, 1889463, 919428, 2190976, 534980]
+    # used: 
+    #   (0, 2500000, 100), 
+    #   (1, 2500000，1000), 
+    #   (9, 2500000),
+    #   (5, 2500000)
 
     for t in tid:
         try: 
@@ -57,8 +61,14 @@ def main():
                         i += 1
                 d = float(comment.find('div', {'class': 'CardNumRating__CardNumRatingNumber-sc-17t4b9u-2 cDKJcc'}).text)
                 vc = comment.find('div', {'class': 'Comments__StyledComments-dzzyvm-0 gRjWel'}).text
+
+                # Only get negative comments
+                #if q <= 2:
+                #    comments.append([q, d, vc])
+
+                # Get all comments
                 comments.append([q, d, vc])
-            
+
             # Each professor is stored as a dictionary in the following form:
             # {name: Adam Meyers, overall_score: 3.3, would_take_again: 0.67, difficulty: 3, comments: [a_list_of_comments]}
             # "comments" stores all the comments for this professor. Each comment is stored as a list in the form of [quality, difficulty, verbal_comment].
@@ -69,6 +79,8 @@ def main():
         except: 
             print(t)
             continue
+
+        
 
     print("Total number of professors: " + str(len(prof_list)))
     print("Total number of comments: " + str(sum([len(prof['comments']) for prof in prof_list])))
