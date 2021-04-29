@@ -20,10 +20,9 @@ def main():
 
     base_url = 'https://www.ratemyprofessors.com/ShowRatings.jsp?tid='
     # A list of teacher id whose comments we will fetch
-    tid = [x for x in list(range(9, 2499999, 4000)) if (x % 100 != 0 and x % 1000 not in [0, 1, 2, 3, 4, 5, 6, 7, 8, 9])]
+    tid = [x for x in list(range(8000, 9000, 1)) if (x % 100 != 0 and x % 1000 not in [0, 1, 2, 3, 4, 5, 6, 7, 8, 9])]
     # [1302, 2224004, 1576103, 1051004, 2105994, 2291871, 1482580, 2454762, 1032165, 2291493, 1134872, 1889463, 919428, 2190976, 534980]
-    # range(0, 1000, 1)
-    # range(1000, 2000, 1)
+    # range(0, 9000, 1)
 
 
     for t in tid:
@@ -65,14 +64,16 @@ def main():
             # "comments" stores all the comments for this professor. Each comment is stored as a list in the form of [quality, difficulty, verbal_comment].
             prof = {'name': name, 'overall_score': overall_score, 'would_take_again': would_take_again, 'difficulty': difficulty, 'comments': comments}
             prof_list.append(prof)
+            print(str(t) + ' success')
         
         except: 
+            print(t)
             continue
 
     print("Total number of professors: " + str(len(prof_list)))
     print("Total number of comments: " + str(sum([len(prof['comments']) for prof in prof_list])))
 
-    output_csv(prof_list, '../data/rmp_data_neg3.csv')
+    output_csv(prof_list, '../data/rmp_data4-8.csv')
     return prof_list
 
 if __name__ == '__main__':
