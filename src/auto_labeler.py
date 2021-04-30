@@ -4,14 +4,14 @@ def main() -> None:
     ### DO NOT TOUCH ###
     # used to shuffled RMP_data and remove 'index' columns
 
-    df = pd.read_csv('../data/rmp_data/raw/rmp_data_neg2.csv', header=0)
+    df = pd.read_csv('../data/rmp_data/raw/rmp_data6.csv', header=0)
     df.drop(columns='index', inplace=True)
     df.insert(loc=0, column='sentiment', value='')
     df = df.sample(frac=1).reset_index(drop=True)
     df.dropna(how='any', inplace=True)
     
     print(df.head())
-    df.to_csv('../data/rmp_data/rmp_data_noIndex_neg.csv', index=False)
+    df.to_csv('../data/rmp_data/rmp_data_noIndex6.csv', index=False)
 
     return
     

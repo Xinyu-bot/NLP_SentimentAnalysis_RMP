@@ -68,7 +68,7 @@ def main(model_to_run: str) -> None:
     d = time()
     print("Time cost for CV, TV, and LB processing: {0} sec".format(round((d - c), 3)))
 
-    ''' Linear Regression model '''
+    ''' Logistic Regression model '''
     def LR() -> None: 
         # training the model
         lr = LogisticRegression(penalty='l2', max_iter=500, C=1, random_state=42)
@@ -87,7 +87,7 @@ def main(model_to_run: str) -> None:
         # print("lr_tfidf_score :", lr_tfidf_score)
 
         print("=" * 42)
-        print("Linear Regression model")
+        print("Logistic Regression model")
         # classification report
         lr_bow_report=classification_report(test_sentiments, lr_bow_predict, target_names=['Positive', 'Negative'])
         print(lr_bow_report)
@@ -103,7 +103,7 @@ def main(model_to_run: str) -> None:
 
     ''' Stochastic Gradient Descent '''
     def SGD() -> None: 
-        # training the linear svm
+        # training the logistic svm
         svm = SGDClassifier(loss='hinge', max_iter=500, random_state=42)
         # fitting the svm
         svm_bow = svm.fit(cv_train, train_sentiments)
@@ -190,4 +190,4 @@ if __name__ == '__main__':
         assert(str(model) == 'lr' or str(model) == 'sgd' or str(model) == 'mnb' or str(model) == 'all')
         main(model_to_run=model)
     except (AssertionError, IndexError) as err:  
-        print("Usage: \n\tlr for Linear Regression, sgd for Stochastic Gradient Descent, mnb for Multinomial Naive Bayes, or all for All")
+        print("Usage: \n\tlr for Logistic Regression, sgd for Stochastic Gradient Descent, mnb for Multinomial Naive Bayes, or all for All")

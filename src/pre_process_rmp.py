@@ -14,13 +14,13 @@ def shuffle() -> None:
     
 
     df = df.sort_values('label')
-    pos = df.head(12000)
-    neg = df.tail(12000)
+    pos = df.head(17000)
+    neg = df.tail(17000)
 
-    total = 12000 + 12000
+    total = 17000 + 17000
     out = pos.append(neg, ignore_index=True)
     out = out.sample(frac=1).reset_index(drop=True)
-    test_size = int(total * 0.3 // 1)
+    test_size = int(total * 0.2 // 1)
     training_size = total - test_size
     
 
@@ -34,7 +34,7 @@ def shuffle() -> None:
 
 def main() -> None:
     # modify filename if needed
-    INFILE = '../data/rmp_data/rmp_data_noIndex3_all.csv' 
+    INFILE = '../data/rmp_data/rmp_data_1234567.csv' 
     OUTFILE = '../data/rmp_data/rmp_data_reversed.csv'
 
     df = pd.read_csv(INFILE, header=0)
@@ -46,5 +46,5 @@ def main() -> None:
     return
 
 if __name__ == '__main__':
-    # main()
-    shuffle()
+    main()
+    # shuffle()
