@@ -372,7 +372,7 @@ if __name__ == '__main__':
         assert(str(corpus) == 'imdb' or str(corpus) == 'rmp')
         assert(str(ngram) == 'unigram' or str(ngram) == 'bigram' or str(ngram) == 'trigram')
     except (ValueError, AssertionError, IndexError) as err:  
-        print("Usage: \n\tFirst field: 0 for importing exists models, 1 for re-generating models\n\tSecond field: imdb or rmp\n\tThird field: bigram or trigram")
+        print("Usage: \n\tFirst field: 0 for importing exists models, 1 for re-generating models\n\tSecond field: imdb or rmp\n\tThird field: unigran, bigram, or trigram")
         exit(1)
     else: 
         main(regenerate=regenerate, test_corpus=corpus, ngram=ngram)
