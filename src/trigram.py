@@ -3,30 +3,31 @@ import numpy as np
 import unigram_lexicon_based
 import pickle
 import sys
-from nltk.corpus import stopwords
-from time import time
-from nltk.tokenize import ToktokTokenizer, word_tokenize
-from nltk import PorterStemmer
 import random
+import string
+from time import time
+from nltk import PorterStemmer
+from nltk.tokenize import ToktokTokenizer, word_tokenize
+from nltk.corpus import stopwords
 
 # Out-of-Model threshold
 # if a n-gram sequence occurred lower than this threshold, 
 # we consider it as not valid and back-off to a lower n-gram model
 OOM_THRESHOLD = 0
 tokTok = ToktokTokenizer().tokenize
+STOP_WORDS = stopwords.words('english')
 
 # helper function to enforce the sentence boundary and NP/VP parsing
-def parser() -> tuple: 
-    ret = set()
-
-    return ret
+def tokenFilter(token: str) -> bool: 
+    # ret = token not in string.punctuation or token not in STOP_WORDS
+    return True
 
 # helper function to parse text from bigram dataset and update model accordingly
 def process_row(row: tuple, trigram_model: dict, bigram_model: dict, unigram_model_corpusBased: dict, porterStemmer: PorterStemmer) -> None:
     # unpack the row
     text, sentiment = row[0], row[1]
     tokens = word_tokenize(text)
-    tokens = [porterStemmer.stem(token.lower()) for token in tokens]
+    tokens = [porterStemmer.stem(token.lower()) for token in tokens if tokenFilter(token)]
 
     # loop through tokens    
     index = 0
@@ -260,6 +261,17 @@ def train_model(filenames: tuple, porterStemmer: PorterStemmer) -> dict:
    
     return trigram_model, bigram_model, unigram_model_corpusBased
 
+# helper function to import the previously exported model bytefiles
+def import_models() -> tuple: 
+    with open('trigram.model', 'rb') as handle:
+        trigram_model = pickle.load(handle)
+    with open('bigram.model', 'rb') as handle: 
+        bigram_model = pickle.load(handle)
+    with open('unigram.model', 'rb') as handle: 
+        unigram_model_corpusBased = pickle.load(handle)
+
+    return (trigram_model, bigram_model, unigram_model_corpusBased)
+
 def main(regenerate: int, test_corpus: str, ngram: str) -> None:
     # initialize basic setups
     unigram_file_extended = '../data/unigram/unigram_lexicon_extended.csv'
@@ -298,12 +310,7 @@ def main(regenerate: int, test_corpus: str, ngram: str) -> None:
     # import model from bytefiles to save 10x times from generating model from corpus
     else: 
         _ = time()
-        with open('trigram.model', 'rb') as handle:
-            trigram_model = pickle.load(handle)
-        with open('bigram.model', 'rb') as handle: 
-            bigram_model = pickle.load(handle)
-        with open('unigram.model', 'rb') as handle: 
-            unigram_model_corpusBased = pickle.load(handle)
+        trigram_model, bigram_model, unigram_model_corpusBased = import_models()
         __ = time()
         print("Time cost for importing models:\t  {0} sec".format(round((__ - _), 3)))
 
