@@ -80,7 +80,7 @@ def get_url(prof_name):
                 school = prof.find('div', {'class': 'CardSchool__School-sc-19lmz2k-1 iDlVGM'}).text
                 href = prof['href']
                 prof_list[num] = {'name': name, 'dpt': department, 'school': school, 'href': href}
-            print(f'We found {num_of_results} professors with the name {prof_name}. \nPlease select the one you are referring to:')
+            print(f'We found {num_of_results} professors with the name "{prof_name}". \nPlease select the one you are referring to:')
             for prof_num in prof_list:
                 print(str(prof_num) + ' ' + prof_list[prof_num]['name'] + ', professor of ' + prof_list[prof_num]['dpt'] + ' at ' + prof_list[prof_num]['school'])
             n = input()
@@ -168,7 +168,7 @@ def get_comments(user_in, mode):
         url = get_url(user_in)
         if url == None:
             print('No professor found with name ' + user_in + '.')
-            exit()
+            exit(-1)
     
     # Check the integrity of url
     assert url[0:53] == 'https://www.ratemyprofessors.com/ShowRatings.jsp?tid=', 'Something wrong with the url: ' + url
@@ -177,5 +177,5 @@ def get_comments(user_in, mode):
     comments = None
     if prof['comments'] != None:
         comments = [x[2] for x in prof['comments']]
-    return [comments, prof['overall_score'], prof['difficulty']]
+    return [comments, prof['overall_score'], prof['difficulty'], prof['name']]
 
