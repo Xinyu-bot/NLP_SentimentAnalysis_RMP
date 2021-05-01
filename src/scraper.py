@@ -178,3 +178,4 @@ def get_comments(user_in, mode):
     if prof['comments'] != None:
         comments = [x[2] for x in prof['comments']]
     return [comments, prof['overall_score'], prof['difficulty']]
+
