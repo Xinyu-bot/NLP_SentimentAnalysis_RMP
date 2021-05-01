@@ -37,6 +37,8 @@ def main() -> None:
 
 
     pos, neg = 0, 0
+    weight = [0, 0]
+    count = 0
     # loop through the comments
     for comment in comments: 
         res = trigram.analyze_trigram(comment, trigram_model, bigram_model, unigram_model, STOP_WORDS, porterStemmer)
@@ -47,13 +49,19 @@ def main() -> None:
             neg += 1
         else: 
             pass
+        weight[0] += _pos
+        weight[1] += _neg
+        count += 1
     
-    sentiment_score = round(3.0 + (2.0 * ((pos / (pos + neg)) - 0.5)), 1)
+    sentiment_score = round(3.0 + (4.0 * ((pos / (pos + neg)) - 0.5)), 1)
+    sentiment_score2 = round(3.0 + (4.0 * ((weight[0] / count) - 0.5)), 1)
 
     print("=" * 42)
-    print("AHSAR result on professor {0}:\n\tQuality Score: \t\t{1}\n\tDifficulty Score: \t{2}\n\tSentiment Score (new): \t{3}"
-            .format(name, quality_score, difficulty_score, sentiment_score)
+    print("AHSAR result on professor {0}:\nQuality Score: \t\t\t{1}\nDifficulty Score: \t\t{2}\nSentiment Score (discrete): \t{3}\nSentiment Score (continuous): \t{4}"
+            .format(name, quality_score, difficulty_score, sentiment_score, sentiment_score2)
             )
+    print("\nNotice that discrete sentiment score is computed based on individual comments, while continuous sentiment score is computed based on all comments. ")
+    print("In other words, the higher the discrete score is, the more individual comments are positive. The higher the continuous score is, the larger proportion of all comments are positive. ")
     print("=" * 42)
 
     return 
