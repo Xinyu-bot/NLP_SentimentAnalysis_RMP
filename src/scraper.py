@@ -179,4 +179,3 @@ def get_comments(user_in, mode):
         comments = [x[2] for x in prof['comments']]
     return [comments, prof['overall_score'], prof['difficulty']]
 
-print(get_comments('traiberman', 1))
