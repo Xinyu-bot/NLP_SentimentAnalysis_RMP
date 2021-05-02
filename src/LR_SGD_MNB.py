@@ -144,9 +144,9 @@ def main(model_to_run: str) -> None:
 
         # predicting the model
         mnb_bow_predict = mnb.predict(cv_test)
-        print(mnb_bow_predict)
+        # print(mnb_bow_predict)
         mnb_tfidf_predict = mnb.predict(tv_test)
-        print(mnb_tfidf_predict)
+        # print(mnb_tfidf_predict)
 
         # Accuracy score
         # svm_bow_score = accuracy_score(test_sentiments, mnb_bow_predict)

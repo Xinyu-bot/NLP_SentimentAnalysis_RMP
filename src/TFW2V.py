@@ -34,7 +34,7 @@ def main() -> None:
     data['tokens'] = data['text'].progress_map(word_tokenize)
 
     # divide the corpus 
-    x_train, x_test, y_train, y_test = train_test_split(np.array(data.tokens), np.array(data.label), test_size = 0.3)
+    x_train, x_test, y_train, y_test = train_test_split(np.array(data.tokens), np.array(data.label), test_size = 0.2)
     # label the text
     x_train = labelize(x_train, 'TRAIN')
     x_test = labelize(x_test, 'TEST')

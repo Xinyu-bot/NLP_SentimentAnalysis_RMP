@@ -13,20 +13,20 @@ from nltk.corpus import stopwords
 # Out-of-Model threshold
 # if a n-gram sequence occurred lower than this threshold, 
 # we consider it as not valid and back-off to a lower n-gram model
-OOM_THRESHOLD = 0
+OOM_THRESHOLD = 2
 tokTok = ToktokTokenizer().tokenize
 STOP_WORDS = stopwords.words('english')
 
 # helper function to enforce the sentence boundary and NP/VP parsing
 def tokenFilter(token: str) -> bool: 
-    # ret = token not in string.punctuation or token not in STOP_WORDS
+    # ret = token not in string.punctuation and token not in STOP_WORDS
     return True
 
 # helper function to parse text from bigram dataset and update model accordingly
 def process_row(row: tuple, trigram_model: dict, bigram_model: dict, unigram_model_corpusBased: dict, porterStemmer: PorterStemmer) -> None:
     # unpack the row
     text, sentiment = row[0], row[1]
-    tokens = word_tokenize(text)
+    tokens = tokTok(text)
     tokens = [porterStemmer.stem(token.lower()) for token in tokens if tokenFilter(token)]
 
     # loop through tokens    
@@ -125,16 +125,12 @@ def bigram_backoff(bigram_model: dict, unigram_model: unigram_lexicon_based.Lexi
 
 def analyze_unigram_corpusBased(sentence: str, unigram_model_corpusBased: dict, STOP_WORDS: list, porterStemmer: PorterStemmer) -> tuple: 
     # clean the input
-    tokens = word_tokenize(sentence)
+    tokens = tokTok(sentence)
     tokens = [porterStemmer.stem(token.lower()) for token in tokens]
 
     pos, neg = 0, 0
     # loop through each trigrams of the current sentence
     for unigram in tokens: 
-        # remove stop words presence directly
-        # if unigram in STOP_WORDS: 
-        #    continue
-
         # retrieve pos and neg occurrence from trigram model
         arr = unigram_model_corpusBased.get(unigram, (-1, -1))
         # if not found or occurrence too few, backoff to unigram model
@@ -161,7 +157,7 @@ def analyze_unigram_corpusBased(sentence: str, unigram_model_corpusBased: dict, 
 
 def analyze_bigram(sentence: str, bigram_model: dict, unigram_model: unigram_lexicon_based.Lexicon, STOP_WORDS: list, porterStemmer: PorterStemmer) -> tuple: 
     # clean the input
-    tokens = word_tokenize(sentence)
+    tokens = tokTok(sentence)
     tokens = [porterStemmer.stem(token.lower()) for token in tokens]
 
     # lazy generate bigrams from sentence
@@ -170,10 +166,6 @@ def analyze_bigram(sentence: str, bigram_model: dict, unigram_model: unigram_lex
     pos, neg = 0, 0
     # loop through each trigrams of the current sentence
     for bigram in bigrams: 
-        # remove stop words presence directly
-        # if any((token in STOP_WORDS for token in bigram)): 
-        #    continue
-
         # retrieve pos and neg occurrence from trigram model
         arr = bigram_model.get(bigram, (-1, -1))
         # if not found or occurrence too few, backoff to unigram model
@@ -200,7 +192,7 @@ def analyze_bigram(sentence: str, bigram_model: dict, unigram_model: unigram_lex
 
 def analyze_trigram(sentence: str, trigram_model: dict, bigram_model: dict, unigram_model: unigram_lexicon_based.Lexicon, STOP_WORDS: list, porterStemmer: PorterStemmer) -> tuple: 
     # clean the input
-    tokens = word_tokenize(sentence)
+    tokens = tokTok(sentence)
     tokens = [porterStemmer.stem(token.lower()) for token in tokens]
 
     # lazy generate trigrams from sentence
@@ -209,10 +201,6 @@ def analyze_trigram(sentence: str, trigram_model: dict, bigram_model: dict, unig
     pos, neg = 0, 0
     # loop through each trigrams of the current sentence
     for trigram in trigrams: 
-        # remove stop words presence directly
-        # if any((token in STOP_WORDS for token in trigram)): 
-        #    continue
-
         # retrieve pos and neg occurrence from trigram model
         arr = trigram_model.get(trigram, (-1, -1))
         # if not found or occurrence too few, backoff to unigram model
@@ -261,6 +249,17 @@ def train_model(filenames: tuple, porterStemmer: PorterStemmer) -> dict:
    
     return trigram_model, bigram_model, unigram_model_corpusBased
 
+# helper function to export the generated model to bytefiles
+def export_models(trigram_model: dict, bigram_model: dict, unigram_model_corpusBased: dict) -> None: 
+    with open('trigram.model', 'wb') as outstream: 
+        pickle.dump(trigram_model, outstream)
+    with open('bigram.model', 'wb') as outstream: 
+        pickle.dump(bigram_model, outstream)
+    with open('unigram.model', 'wb') as outstream: 
+        pickle.dump(unigram_model_corpusBased, outstream)
+
+    return
+
 # helper function to import the previously exported model bytefiles
 def import_models() -> tuple: 
     with open('trigram.model', 'rb') as handle:
@@ -299,12 +298,7 @@ def main(regenerate: int, test_corpus: str, ngram: str) -> None:
 
         # dump the models into file, so next time we can read model directly
         _ = time()
-        with open('trigram.model', 'wb') as outstream: 
-            pickle.dump(trigram_model, outstream)
-        with open('bigram.model', 'wb') as outstream: 
-            pickle.dump(bigram_model, outstream)
-        with open('unigram.model', 'wb') as outstream: 
-            pickle.dump(unigram_model_corpusBased, outstream)
+        export_models(trigram_model, bigram_model, unigram_model_corpusBased)
         __ = time()
         print("Time cost for exporting models:\t  {0} sec".format(round((__ - _), 3)))
     # import model from bytefiles to save 10x times from generating model from corpus
@@ -322,10 +316,12 @@ def main(regenerate: int, test_corpus: str, ngram: str) -> None:
     correct_neg, system_neg, label_neg = 0, 0, 0
     # read the testing corpus
     test_df = pd.read_csv(TEST_FILE, header=0)
+
     # loop through the testing corpus and check the sentiment analysis result and labelled sentiment line by line
     for row in test_df.itertuples(index=False):
         # unpack row
         text, label = row[0], row[1]
+
         # analyze row based on trigram or bigram
         if ngram == 'trigram':
             res = analyze_trigram(text, trigram_model, bigram_model, unigram_model, STOP_WORDS, porterStemmer)
@@ -333,6 +329,7 @@ def main(regenerate: int, test_corpus: str, ngram: str) -> None:
             res = analyze_bigram(text, bigram_model, unigram_model, STOP_WORDS, porterStemmer)
         else: 
             res = analyze_unigram_corpusBased(text, unigram_model_corpusBased, STOP_WORDS, porterStemmer)
+
         # examine the result
         if float(res[0]) > float(res[1]): 
             if int(label) == 1: 
