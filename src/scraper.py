@@ -168,7 +168,7 @@ def get_comments(user_in, mode):
         url = get_url(user_in)
         if url == None:
             print('No professor found with name ' + user_in + '.')
-            exit(-1)
+            return
     
     # Check the integrity of url
     assert url[0:53] == 'https://www.ratemyprofessors.com/ShowRatings.jsp?tid=', 'Something wrong with the url: ' + url
