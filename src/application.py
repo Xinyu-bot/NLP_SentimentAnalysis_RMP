@@ -71,7 +71,7 @@ def analyze_sentiment(comments: list, trigram_model: dict, bigram_model: dict, u
     # display the results
     print("=" * 42)
     print(
-        "AHSAR result on professor {0}:\nQuality Score: \t\t\t{1}\nDifficulty Score: \t\t{2}\nSentiment Score (discrete): \t{3}\nSentiment Score (continuous): \t{4}"
+        "AH-SAR result on professor {0}:\nQuality Score: \t\t\t{1}\nDifficulty Score: \t\t{2}\nSentiment Score (discrete): \t{3}\nSentiment Score (continuous): \t{4}"
         .format(name, quality_score, difficulty_score, sentiment_score, sentiment_score2)
     )
     print("=" * 42)
