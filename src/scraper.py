@@ -81,7 +81,7 @@ def get_url(prof_name):
                 school = prof.find('div', {'class': 'CardSchool__School-sc-19lmz2k-1 iDlVGM'}).text
                 href = prof['href']
                 prof_list[num] = {'name': name, 'dpt': department, 'school': school, 'href': href}
-            print(f'We found {num_of_results} professors with the name {prof_name}. \nPlease select the one you are referring to:')
+            print(f'We found {num_of_results} professors with the name "{prof_name}". \nPlease select the one you are referring to:')
             for prof_num in prof_list:
                 print(str(prof_num) + ' ' + prof_list[prof_num]['name'] + ', professor of ' + prof_list[prof_num]['dpt'] + ' at ' + prof_list[prof_num]['school'])
             n = input()

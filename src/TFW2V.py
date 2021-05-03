@@ -6,6 +6,7 @@ from nltk.tokenize import word_tokenize
 from sklearn.model_selection import train_test_split
 from sklearn.feature_extraction.text import TfidfVectorizer
 from sklearn.preprocessing import scale
+import keras
 from keras import Sequential
 from keras.layers import Dense
 from tqdm import tqdm
@@ -34,14 +35,14 @@ def main() -> None:
     data['tokens'] = data['text'].progress_map(word_tokenize)
 
     # divide the corpus 
-    x_train, x_test, y_train, y_test = train_test_split(np.array(data.tokens), np.array(data.label), test_size = 0.3)
+    x_train, x_test, y_train, y_test = train_test_split(np.array(data.tokens), np.array(data.label), test_size = 0.2)
     # label the text
     x_train = labelize(x_train, 'TRAIN')
     x_test = labelize(x_test, 'TEST')
 
     # build word2vec model
     n_dim = 500
-    w2v_model = Word2Vec(workers=16, vector_size=n_dim, window=10, min_count=5)
+    w2v_model = Word2Vec(workers=8, vector_size=n_dim, window=10, min_count=5)
     w2v_model.build_vocab([x.words for x in tqdm(x_train)])
     w2v_model.train([x.words for x in tqdm(x_train)], total_examples=w2v_model.corpus_count, epochs=w2v_model.epochs)
 
@@ -76,11 +77,20 @@ def main() -> None:
     model = Sequential()
     model.add(Dense(32, activation='relu', input_dim=n_dim))
     model.add(Dense(1, activation='sigmoid'))
-    model.compile(optimizer='rmsprop', loss='binary_crossentropy', metrics=['accuracy'])
-    model.fit(train_vec_w2v, y_train, epochs=16, batch_size=32, verbose=2)
+    model.compile(optimizer='rmsprop', 
+                  loss='binary_crossentropy', 
+                  metrics=[
+                      'accuracy', 'MeanSquaredError', 'AUC', keras.metrics.Precision(), keras.metrics.Recall(), keras.metrics.TruePositives(), 
+                      keras.metrics.TrueNegatives(), keras.metrics.FalsePositives(), keras.metrics.FalseNegatives()
+                      ])
+    model.fit(train_vec_w2v, y_train, epochs=16, batch_size=32, verbose=0)
 
     # evaluate the result
-    score = model.evaluate(test_vec_w2v, y_test, batch_size=128, verbose=2)
+    score = model.evaluate(test_vec_w2v, y_test, batch_size=128, verbose=0, workers=8)
+    metrics = ['loss', 'accuracy', 'MeanSquaredError', 'AUC', 'Precision', 'Recall', "TruePositives", 'TrueNegatives', 'FalsePositives', 'FalseNegatives']
+    print('=' * 42)
+    for i, e in enumerate(score): 
+        print(metrics[i], e)
 
     return
 
