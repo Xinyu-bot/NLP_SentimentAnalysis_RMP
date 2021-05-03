@@ -2,6 +2,7 @@ import requests
 from bs4 import BeautifulSoup
 import pandas as pd
 import sys
+ 
 
 def output_csv(prof_list, output_fn):
     # Output result as a csv file with 4 columns: text, quality, difficulty, prof_name
@@ -178,4 +179,3 @@ def get_comments(user_in, mode):
     if prof['comments'] != None:
         comments = [x[2] for x in prof['comments']]
     return [comments, prof['overall_score'], prof['difficulty'], prof['name']]
-
