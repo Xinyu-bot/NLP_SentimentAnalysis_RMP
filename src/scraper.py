@@ -2,6 +2,7 @@ import requests
 from bs4 import BeautifulSoup
 import pandas as pd
 import sys
+ 
 
 def output_csv(prof_list, output_fn):
     # Output result as a csv file with 4 columns: text, quality, difficulty, prof_name
@@ -168,7 +169,7 @@ def get_comments(user_in, mode):
         url = get_url(user_in)
         if url == None:
             print('No professor found with name ' + user_in + '.')
-            exit()
+            return
     
     # Check the integrity of url
     assert url[0:53] == 'https://www.ratemyprofessors.com/ShowRatings.jsp?tid=', 'Something wrong with the url: ' + url
@@ -177,4 +178,4 @@ def get_comments(user_in, mode):
     comments = None
     if prof['comments'] != None:
         comments = [x[2] for x in prof['comments']]
-    return [comments, prof['overall_score'], prof['difficulty']]
+    return [comments, prof['overall_score'], prof['difficulty'], prof['name']]
