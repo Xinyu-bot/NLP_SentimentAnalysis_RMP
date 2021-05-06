@@ -35,7 +35,7 @@ def shuffle() -> None:
 
 def main() -> None:
     # modify filename if needed
-    INFILE = '../data/rmp_data/rmp_data_6.csv' 
+    INFILE = '../data/rmp_data/rmp_data_7.csv' 
     OUTFILE = '../data/rmp_data/rmp_data_reversed.csv'
 
     df = pd.read_csv(INFILE, header=0)
