@@ -4,7 +4,6 @@ from nltk import PorterStemmer
 from time import time
 import pandas as pd
 import numpy as np
-from scraper import main as grab
 import unigram_lexicon_based
 import bigram
 import vector_similarity
